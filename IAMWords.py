@@ -26,6 +26,7 @@ class IAMWords:
         images_file = IAM_PATH + "words." + dataset_type +".pkl"
         import os.path
         if not os.path.isfile(images_file):
+            print(images_file + "not exist.")
             print("Reading files...")
             cnt = len(self.words_list)
             for idx in range(0, cnt):
@@ -43,6 +44,7 @@ class IAMWords:
             pickle.dump(self.word_images, f)
             f.close()
         else:
+            print("Reading " + images_file + "...")
             import pickle
             f = open(images_file, "rb")
             self.word_images = pickle.load(f)
