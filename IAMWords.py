@@ -21,12 +21,15 @@ class IAMWords:
         self.current = 0
         self.codes = {}
         self.inv_codes = {}
+        self.alphabet = '_!"#&\'()*+,-./0123456789:;?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz '
+        self.codes = {c:i for i,c in enumerate(self.alphabet)}
+        self.inv_codes = {i:c for i,c in enumerate(self.alphabet)}
         self.word_size = 30
         self.word_images = {}
         images_file = IAM_PATH + "words." + dataset_type +".pkl"
         import os.path
         if not os.path.isfile(images_file):
-            print(images_file + "not exist.")
+            print(images_file + " not exist.")
             print("Reading files...")
             cnt = len(self.words_list)
             for idx in range(0, cnt):
@@ -154,10 +157,6 @@ class IAMWords:
         w = w + (" "*(self.word_size - len(w)))
         W = []
         for a in w:
-            if a not in self.codes:
-                idx = len(self.codes)
-                self.codes[a] = idx
-                self.inv_codes[idx] = a
             W.append(self.codes[a])
         W = torch.LongTensor(W)
         return W
