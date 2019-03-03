@@ -6,7 +6,7 @@ import tarfile
 
 class IAMWords:
     
-    def __init__(self, dataset_type, batch_size=50, IAM_PATH = "/home/user/DL/Project/"):
+    def __init__(self, dataset_type, IAM_PATH, batch_size=50):
         self.dataset_type = dataset_type
         self.scale = 0.5
         self.line_height = 128
@@ -15,7 +15,6 @@ class IAMWords:
         self.datasetPath = IAM_PATH
         self.batch_size = batch_size
         self.lines = self.read_lines()
-        #self.words_archive = tarfile.open(IAM_PATH + "words.tar", "r")
         self.words_list = self.read_words_list()
         self.tmp = sp.ones([self.batch_size, self.line_height, self.line_width], dtype="uint8")
         self.tmpText = ""
@@ -33,7 +32,6 @@ class IAMWords:
                 l = self.words_list[idx]
                 if True:
                     f_name = self.word_file(l)
-                    #f = self.words_archive.extractfile(f_name)
                     f = open(f_name, "rb")
                     c = f.read()
                     name = l[0]
@@ -101,8 +99,6 @@ class IAMWords:
         if (l[1] != "ok"):
             return None
         return l
-        
-    
    
     def word_file(self, l):
         word_id = l[0].split("-")
@@ -192,5 +188,4 @@ class IAMWords:
         t = torch.stack(texts)
         i = torch.as_tensor(self.tmp)
         i = i.type(torch.FloatTensor)
-        #print(status[1])
         return (i, t)
