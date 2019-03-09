@@ -111,7 +111,7 @@ class IAMWords:
         f_name = words_folder + word_id[0] + "/" + word_id[0] + "-" + word_id[1] + "/" + l[0] + ".png"   
         return f_name
     
-    def fill_image(self, i, l):
+    def fill_image(self, i, l, equalize=False):
         text = l[-1]
         if len(text) > self.word_size:
             return None
@@ -139,7 +139,10 @@ class IAMWords:
         data = sp.frombuffer(data, sp.uint8)
         try: 
             img = cv2.imdecode(data, 0)
-            _, img = cv2.threshold(img,gray,255,cv2.THRESH_BINARY)
+            if equalize:
+              img = cv2.equalizeHist(img,gray)
+            else:
+              _, img = cv2.threshold(img,gray,255,cv2.THRESH_BINARY)
             img=cv2.resize(img, (new_width, new_height), cv2.INTER_LANCZOS4)
 
             word_dy = 128 - floor(word_dy*self.scale) - new_height
@@ -171,7 +174,7 @@ class IAMWords:
     def to_start(self):
         self.current = 0
     
-    def make_batch(self):
+    def make_batch(self, equalize=False):
         self.tmp.fill(255)
         img_idx = 0
         images = []
@@ -181,7 +184,7 @@ class IAMWords:
                 return None
             l = self.words_list[self.current]
             self.current += 1
-            status = self.fill_image(img_idx, l)
+            status = self.fill_image(img_idx, l, equalize)
             if status is None:
                 continue
             texts.append(status)
