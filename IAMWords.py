@@ -2,11 +2,15 @@ import cv2
 import scipy as sp
 from math import floor
 import torch
-import tarfile
+import random
 
 class IAMWords:
     
     def __init__(self, dataset_type, IAM_PATH, batch_size=50):
+        self.local_rng_state = None
+        self.сapture_rng()
+        random.seed(1)
+        self.free_rng()
         self.dataset_type = dataset_type
         self.scale = 0.5
         self.line_height = 128
@@ -18,7 +22,6 @@ class IAMWords:
         self.words_list = self.read_words_list()
         self.tmp = sp.ones([self.batch_size, self.line_height, self.line_width], dtype="uint8")
         self.tmpText = ""
-        self.current = 0
         self.codes = {}
         self.inv_codes = {}
         self.alphabet = '_!"#&\'()*+,-./0123456789:;?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz '
@@ -52,9 +55,28 @@ class IAMWords:
             f = open(images_file, "rb")
             self.word_images = pickle.load(f)
             f.close()
-
+        self.group_words()
+        self.to_start()
         print("Reading finished")
-    
+        
+    def сapture_rng(self):
+        self.global_rng_state = random.getstate() 
+        if self.local_rng_state != None:
+            random.setstate(self.local_rng_state)
+        
+    def free_rng(self):
+        self.local_rng_state = random.getstate() 
+        random.setstate(self.global_rng_state)
+        
+    def group_words(self):
+        self.grouped_words = []
+        for idx in range(0, len(self.words_list)):
+            w = self.words_list[idx][-1]
+            l = len(w)
+            while l >= len(self.grouped_words):
+                self.grouped_words.append([])
+            self.grouped_words[l].append(idx)    
+            
     def read_lines(self):
         f_name = self.datasetPath + "ascii/lines.txt"
         f = open(f_name, "r")
@@ -77,12 +99,7 @@ class IAMWords:
             if l is None:
                 continue
             lines.append(l)
-        import random
         from math import floor
-        s = random.getstate()
-        random.seed(1)
-        random.shuffle(lines)
-        random.setstate(s)
         part = floor(len(lines)/10)
         if self.dataset_type == "test":
             lines = lines[0: part]
@@ -157,7 +174,7 @@ class IAMWords:
         return W
     
     def encode_word(self, w):
-        w = w + (" "*(self.word_size - len(w)))
+        w = w #+ (" "*(self.word_size - len(w)))
         W = []
         for a in w:
             W.append(self.codes[a])
@@ -166,24 +183,33 @@ class IAMWords:
     
     def decode_word(self, W):
         w = ""
-        for i in range(0, self.word_size):
+        for i in range(0, W.shape[0]):
             idx = W[i].item()
             w += self.inv_codes[idx]
         return w
     
     def to_start(self):
-        self.current = 0
-    
-    def make_batch(self, use_binarization=True, equalize=False):
+        self.currentGroup = 0
+        self.newGroup = True
+        
+    def make_group_batch(self, use_binarization=True, equalize=False):
+        if self.newGroup:
+            self.newGroup = False
+            self.сapture_rng()
+            random.shuffle(self.grouped_words[self.currentGroup])
+            self.free_rng()
+            self.currentWord = 0
         self.tmp.fill(255)
         img_idx = 0
         images = []
         texts = []
         while img_idx < self.batch_size:
-            if self.current >= len(self.words_list):
+            group = self.grouped_words[self.currentGroup]
+            if self.currentWord >= len(group):
                 return None
-            l = self.words_list[self.current]
-            self.current += 1
+            word_idx = group[self.currentWord]
+            self.currentWord += 1
+            l = self.words_list[word_idx]
             status = self.fill_image(img_idx, l, use_binarization, equalize)
             if status is None:
                 continue
@@ -193,3 +219,16 @@ class IAMWords:
         i = torch.as_tensor(self.tmp)
         i = i.type(torch.FloatTensor)
         return (i, t)
+    
+    def make_batch(self, use_binarization=True, equalize=False):
+
+        while True:
+            status = self.make_group_batch(use_binarization, equalize)
+            if status is not None:
+                return status
+            if self.currentGroup >= len(self.grouped_words):
+                return None
+            self.currentGroup += 1
+            self.newGroup = True
+            continue
+      
