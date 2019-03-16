@@ -226,9 +226,9 @@ class IAMWords:
             status = self.make_group_batch(use_binarization, equalize)
             if status is not None:
                 return status
+            self.currentGroup += 1
             if self.currentGroup >= len(self.grouped_words):
                 return None
-            self.currentGroup += 1
             self.newGroup = True
             continue
       
