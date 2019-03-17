@@ -27,6 +27,8 @@ class IAMWords:
         self.alphabet = '_!"#&\'()*+,-./0123456789:;?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz '
         self.codes = {c:i for i,c in enumerate(self.alphabet)}
         self.inv_codes = {i:c for i,c in enumerate(self.alphabet)}
+        self.start, self.start_code = self.register_symbol("<START>") 
+        self.stop, self.stop_code = self.register_symbol("<STOP>") 
         self.word_size = 30
         self.word_images = {}
         images_file = IAM_PATH + "words." + dataset_type +".pkl"
@@ -59,6 +61,12 @@ class IAMWords:
         self.to_start()
         print("Reading finished")
         
+    def register_symbol(self, s):
+        l = len(self.codes)
+        self.codes[s] = l
+        self.inv_codes[l] = s
+        return (s, l)
+        
     def сapture_rng(self):
         self.global_rng_state = random.getstate() 
         if self.local_rng_state != None:
@@ -73,6 +81,9 @@ class IAMWords:
         for idx in range(0, len(self.words_list)):
             w = self.words_list[idx][-1]
             l = len(w)
+            if l == 1:
+                if w not in '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz':
+                    continue
             while l >= len(self.grouped_words):
                 self.grouped_words.append([])
             self.grouped_words[l].append(idx)    
