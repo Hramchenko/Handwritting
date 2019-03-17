@@ -6,15 +6,15 @@ import random
 
 class IAMWords:
     
-    def __init__(self, dataset_type, IAM_PATH, batch_size=50):
+    def __init__(self, dataset_type, IAM_PATH, batch_size=50, line_height = 128, line_width = 400):
         self.local_rng_state = None
         self.сapture_rng()
         random.seed(1)
         self.free_rng()
         self.dataset_type = dataset_type
         self.scale = 0.5
-        self.line_height = 128
-        self.line_width = 400
+        self.line_height = line_height
+        self.line_width = line_width
         self.dx = 20
         self.datasetPath = IAM_PATH
         self.batch_size = batch_size
