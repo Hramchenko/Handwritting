@@ -58,7 +58,7 @@ class IAMWords:
             self.word_images = pickle.load(f)
             f.close()
         self.group_words()
-        self.to_start()
+        self.to_start(1000)
         print("Reading finished")
         
     def register_symbol(self, s):
@@ -77,16 +77,23 @@ class IAMWords:
         random.setstate(self.global_rng_state)
         
     def group_words(self):
-        self.grouped_words = []
+        grouped_words = []
+        self.splitted_groups = []
+
         for idx in range(0, len(self.words_list)):
             w = self.words_list[idx][-1]
             l = len(w)
             if l == 1:
                 if w not in '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz':
                     continue
-            while l >= len(self.grouped_words):
-                self.grouped_words.append([])
-            self.grouped_words[l].append(idx)    
+            while l >= len(grouped_words):
+                grouped_words.append([])
+            grouped_words[l].append(idx)  
+            if len(grouped_words[l]) >= self.batch_size:
+                self.splitted_groups.append(grouped_words[l])
+                grouped_words[l] = []
+        
+    
             
     def read_lines(self):
         f_name = self.datasetPath + "ascii/lines.txt"
@@ -168,9 +175,9 @@ class IAMWords:
         try: 
             img = cv2.imdecode(data, 0)
             if equalize:
-              img = cv2.equalizeHist(img,gray)
+                img = cv2.equalizeHist(img,gray)
             elif use_binarization:
-              _, img = cv2.threshold(img,gray,255,cv2.THRESH_BINARY)
+                _, img = cv2.threshold(img,gray,255,cv2.THRESH_BINARY)
             img=cv2.resize(img, (new_width, new_height), cv2.INTER_LANCZOS4)
 
             word_dy = 128 - floor(word_dy*self.scale) - new_height
@@ -179,7 +186,7 @@ class IAMWords:
                 new_width -= max_x - self.line_width
             self.tmp[i, word_dy:word_dy+new_height, 0+self.dx:self.dx+new_width]=img
         except:
-           return None
+            return None
         w = l[-1]
         W = self.encode_word(w)
         return W
@@ -199,15 +206,16 @@ class IAMWords:
             w += self.inv_codes[idx]
         return w
     
-    def to_start(self):
+    def to_start(self, max_size):
         self.currentGroup = 0
         self.newGroup = True
+        self.max_size = max_size
         
     def make_group_batch(self, use_binarization=True, equalize=False):
         if self.newGroup:
             self.newGroup = False
             self.сapture_rng()
-            random.shuffle(self.grouped_words[self.currentGroup])
+            random.shuffle(self.group)
             self.free_rng()
             self.currentWord = 0
         self.tmp.fill(255)
@@ -215,7 +223,7 @@ class IAMWords:
         images = []
         texts = []
         while img_idx < self.batch_size:
-            group = self.grouped_words[self.currentGroup]
+            group = self.group
             if self.currentWord >= len(group):
                 return None
             word_idx = group[self.currentWord]
@@ -234,11 +242,16 @@ class IAMWords:
     def make_batch(self, use_binarization=True, equalize=False):
 
         while True:
-            status = self.make_group_batch(use_binarization, equalize)
-            if status is not None:
-                return status
+            self.group = self.splitted_groups[self.currentGroup]
+            word_idx = self.group[0]
+            l = self.words_list[word_idx]
+            text = l[-1]
+            if len(text) <= self.max_size:
+                status = self.make_group_batch(use_binarization, equalize)
+                if status is not None:
+                    return status
             self.currentGroup += 1
-            if self.currentGroup >= len(self.grouped_words):
+            if self.currentGroup >= len(self.splitted_groups):
                 return None
             self.newGroup = True
             continue
