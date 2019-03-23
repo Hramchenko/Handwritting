@@ -77,23 +77,17 @@ class IAMWords:
         random.setstate(self.global_rng_state)
         
     def group_words(self):
-        grouped_words = []
-        self.splitted_groups = []
-
+        self.grouped_words = []
+        
         for idx in range(0, len(self.words_list)):
             w = self.words_list[idx][-1]
             l = len(w)
             if l == 1:
                 if w not in '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz':
                     continue
-            while l >= len(grouped_words):
-                grouped_words.append([])
-            grouped_words[l].append(idx)  
-            if len(grouped_words[l]) >= self.batch_size:
-                self.splitted_groups.append(grouped_words[l])
-                grouped_words[l] = []
-        
-    
+            while l >= len(self.grouped_words):
+                self.grouped_words.append([])
+            self.grouped_words[l].append(idx)  
             
     def read_lines(self):
         f_name = self.datasetPath + "ascii/lines.txt"
@@ -207,27 +201,47 @@ class IAMWords:
         return w
     
     def to_start(self, max_size):
-        self.currentGroup = 0
-        self.newGroup = True
-        self.max_size = max_size
+        self.сapture_rng()
+        self.total = 0
+        self.group_samples = []
+        self.last_indexes = []
+        groups = []
+        for i in range(0, len(self.grouped_words)):
+            if i >= max_size:
+                break
+            random.shuffle(self.grouped_words[i])
+            cnt = len(self.grouped_words[i])
+            self.group_samples.append(cnt)
+            self.last_indexes.append(0)
+            self.total += cnt
+        self.free_rng()
         
-    def make_group_batch(self, use_binarization=True, equalize=False):
-        if self.newGroup:
-            self.newGroup = False
-            self.сapture_rng()
-            random.shuffle(self.group)
-            self.free_rng()
-            self.currentWord = 0
+        
+        
+    def make_batch_(self, use_binarization=True, equalize=False):
+        self.сapture_rng()
+        Y = random.random()*self.total
+        self.free_rng()
+        for i in range(0, len(self.grouped_words)):
+            Y -= self.group_samples[i]
+            if Y <= 0:
+                group_index = i
+                break
         self.tmp.fill(255)
         img_idx = 0
         images = []
         texts = []
+        current_word = self.last_indexes[group_index]
+        group = self.grouped_words[group_index]
         while img_idx < self.batch_size:
-            group = self.group
-            if self.currentWord >= len(group):
+            if current_word >= len(group):
                 return None
-            word_idx = group[self.currentWord]
-            self.currentWord += 1
+            
+            word_idx = group[current_word]
+            current_word += 1           
+            self.last_indexes[group_index] += 1
+            self.group_samples[group_index] -= 1
+            self.total -= 1
             l = self.words_list[word_idx]
             status = self.fill_image(img_idx, l, use_binarization, equalize)
             if status is None:
@@ -240,19 +254,10 @@ class IAMWords:
         return (i, t)
     
     def make_batch(self, use_binarization=True, equalize=False):
-
         while True:
-            self.group = self.splitted_groups[self.currentGroup]
-            word_idx = self.group[0]
-            l = self.words_list[word_idx]
-            text = l[-1]
-            if len(text) <= self.max_size:
-                status = self.make_group_batch(use_binarization, equalize)
-                if status is not None:
-                    return status
-            self.currentGroup += 1
-            if self.currentGroup >= len(self.splitted_groups):
+            if self.total == 0:
                 return None
-            self.newGroup = True
-            continue
-      
+            result = self.make_batch_(use_binarization, equalize) 
+            if result is not None:
+                return result           
+        
