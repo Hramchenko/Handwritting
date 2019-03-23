@@ -154,12 +154,12 @@ class IAMWords:
 
         if word_dy < 0:
             return None
-
-        new_height = floor(box[3]*self.scale)
+        scale = self.scale*random.uniform(0.9, 1.1)
+        new_height = floor(box[3]*scale)
 
         if (new_height>self.line_height):
             return None
-        new_width = floor(box[2]*self.scale)
+        new_width = floor(box[2]*scale)
 
         if new_width < 2 or new_height < 2:
             return None
@@ -174,11 +174,12 @@ class IAMWords:
                 _, img = cv2.threshold(img,gray,255,cv2.THRESH_BINARY)
             img=cv2.resize(img, (new_width, new_height), cv2.INTER_LANCZOS4)
 
-            word_dy = 128 - floor(word_dy*self.scale) - new_height
-            max_x = self.dx+new_width
+            word_dy = 128 - floor(word_dy*self.scale) - new_height + floor(random.uniform(-5, 5))
+            dx = self.dx + floor(random.uniform(0, 30))
+            max_x = dx+new_width
             if max_x > self.line_width:
                 new_width -= max_x - self.line_width
-            self.tmp[i, word_dy:word_dy+new_height, 0+self.dx:self.dx+new_width]=img
+            self.tmp[i, word_dy:word_dy+new_height, 0+dx:dx+new_width]=img
         except:
             return None
         w = l[-1]
