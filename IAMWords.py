@@ -6,7 +6,7 @@ import random
 
 class IAMWords:
     
-    def __init__(self, dataset_type, IAM_PATH, batch_size=50, line_height = 128, line_width = 400, scale=0.5):
+    def __init__(self, dataset_type, IAM_PATH, batch_size=50, line_height = 128, line_width = 400, scale=0.5, rand_x=30, rand_y=5):
         self.local_rng_state = None
         self.сapture_rng()
         random.seed(1)
@@ -16,6 +16,8 @@ class IAMWords:
         self.line_height = line_height
         self.line_width = line_width
         self.dx = 20
+        self.rand_x = rand_x
+        self.rand_y = rand_y
         self.datasetPath = IAM_PATH
         self.batch_size = batch_size
         self.lines = self.read_lines()
@@ -174,8 +176,8 @@ class IAMWords:
                 _, img = cv2.threshold(img,gray,255,cv2.THRESH_BINARY)
             img=cv2.resize(img, (new_width, new_height), cv2.INTER_LANCZOS4)
 
-            word_dy = 128 - floor(word_dy*self.scale) - new_height + floor(random.uniform(-5, 5))
-            dx = self.dx + floor(random.uniform(0, 30))
+            word_dy = 128 - floor(word_dy*self.scale) - new_height + floor(random.uniform(-self.rand_y, self.rand_y))
+            dx = self.dx + floor(random.uniform(0, self.rand_x))
             max_x = dx+new_width
             if max_x > self.line_width:
                 new_width -= max_x - self.line_width
