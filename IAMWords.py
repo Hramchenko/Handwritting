@@ -213,6 +213,7 @@ class IAMWords:
         if self.pad_length != -1:
             if max_size != -1:
                 raise Exception()
+            max_size = self.pad_length
         if max_size == -1:
             max_size = 10000
         self.сapture_rng()
@@ -221,7 +222,7 @@ class IAMWords:
         self.last_indexes = []
         groups = []
         for i in range(0, len(self.grouped_words)):
-            if i >= max_size:
+            if i > max_size:
                 break
             random.shuffle(self.grouped_words[i])
             cnt = len(self.grouped_words[i])
