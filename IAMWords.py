@@ -113,11 +113,6 @@ class IAMWords:
             l = self.check_line(l)
             if l is None:
                 continue
-            if self.pad_length != -1:
-                wl = len(l[-1])
-                if wl > self.pad_length:
-                    continue
-                l[-1] = l[-1] + (" "*(self.pad_length - wl))    
             lines.append(l)
         from math import floor
         part = floor(len(lines)/10)
@@ -195,7 +190,8 @@ class IAMWords:
         return W
     
     def encode_word(self, w):
-        w = w #+ (" "*(self.word_size - len(w)))
+        if self.pad_length != -1:
+            w = w + (" "*(self.pad_length - len(w)))
         W = []
         for a in w:
             W.append(self.codes[a])
