@@ -6,7 +6,8 @@ import random
 
 class IAMWords:
     
-    def __init__(self, dataset_type, IAM_PATH, batch_size=50, line_height = 128, line_width = 400, scale=0.5, rand_x=30, rand_y=5):
+    def __init__(self, dataset_type, IAM_PATH, batch_size=50, line_height = 128, line_width = 400, scale=0.5, rand_x=30, rand_y=5, pad_length=-1):
+        self.pad_length = pad_length
         self.local_rng_state = None
         self.сapture_rng()
         random.seed(1)
@@ -60,7 +61,7 @@ class IAMWords:
             self.word_images = pickle.load(f)
             f.close()
         self.group_words()
-        self.to_start(1000)
+        self.to_start()
         print("Reading finished")
         
     def register_symbol(self, s):
@@ -112,6 +113,11 @@ class IAMWords:
             l = self.check_line(l)
             if l is None:
                 continue
+            if self.pad_length != -1:
+                wl = len(l[-1])
+                if wl > self.pad_length:
+                    continue
+                l[-1] = l[-1] + (" "*(self.pad_length - wl))    
             lines.append(l)
         from math import floor
         part = floor(len(lines)/10)
@@ -203,7 +209,12 @@ class IAMWords:
             w += self.inv_codes[idx]
         return w
     
-    def to_start(self, max_size):
+    def to_start(self, max_size=-1):
+        if self.pad_length != -1:
+            if max_size != -1:
+                raise Exception()
+        if max_size == -1:
+            max_size = 10000
         self.сapture_rng()
         self.total = 0
         self.group_samples = []
