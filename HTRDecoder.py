@@ -61,9 +61,9 @@ class HTRDecoder(nn.Module):
       
     def makeHidden(self):
         if self.rnn_type == "LSTM":
-            h1 = torch.zeros(self.lstm_layers, self.batch_size, self.lstm_size).to(device)
-            h2 = torch.zeros(self.lstm_layers, self.batch_size, self.lstm_size).to(device)
+            h1 = torch.zeros(self.lstm_layers, self.batch_size, self.lstm_size)
+            h2 = torch.zeros(self.lstm_layers, self.batch_size, self.lstm_size)
             return (h1, h2)
         else:
-            h1 = torch.zeros(self.lstm_layers, self.batch_size, self.lstm_size).to(device)
+            h1 = torch.zeros(self.lstm_layers, self.batch_size, self.lstm_size)
             return h1

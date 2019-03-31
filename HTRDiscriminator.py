@@ -52,4 +52,4 @@ class HTRDiscriminator(nn.Module):
         return loss, hidden
 
     def makeHidden(self):
-        return torch.zeros(self.rnn_layers, self.batch_size, self.hidden_size, device=device)
+        return torch.zeros(self.rnn_layers, self.batch_size, self.hidden_size)
