@@ -6,7 +6,7 @@ from Layers import *
 # Based on: https://github.com/aryopg/Professor_Forcing_Pytorch/blob/master/models/losses.py
 class HTRDiscriminator(nn.Module):
     def __init__(self, batch_size, input_size, hidden_size, input_length, symbs_cnt):
-        super(Discriminator, self).__init__()
+        super(HTRDiscriminator, self).__init__()
         self.batch_size = batch_size
         self.embedding = nn.Embedding(symbs_cnt, 128)
         
