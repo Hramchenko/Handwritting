@@ -205,7 +205,7 @@ class IAMWords:
             w += self.inv_codes[idx]
         return w
     
-    def to_start(self, max_size=-1):
+    def to_start(self, max_size=-1, equalize_freq=False):
         if self.pad_length != -1:
             if max_size != -1:
                 raise Exception()
@@ -213,6 +213,18 @@ class IAMWords:
         if max_size == -1:
             max_size = 10000
         self.сapture_rng()
+        self.equalize_freq = equalize_freq
+        if equalize_freq:
+            self.words_freq = {}
+            for W in self.words_list:
+                w = W[-1]
+                if w in self.words_freq:
+                    self.words_freq[w] += 1
+                else:
+                    self.words_freq[w] = 1
+            v = list(self.words_freq.values())
+            from numpy import median
+            self.median = median(v)
         self.total = 0
         self.group_samples = []
         self.last_indexes = []
@@ -254,6 +266,10 @@ class IAMWords:
             self.group_samples[group_index] -= 1
             self.total -= 1
             l = self.words_list[word_idx]
+            if self.equalize_freq:
+                factor = self.words_freq[l[-1]]/(self.median*3)
+                if (factor < 1) and (random.random()>factor):
+                    continue
             status = self.fill_image(img_idx, l, use_binarization, equalize)
             if status is None:
                 continue
