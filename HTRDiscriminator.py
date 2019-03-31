@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .Layers import *
+from Layers import *
 
 # Based on: https://github.com/aryopg/Professor_Forcing_Pytorch/blob/master/models/losses.py
 class HTRDiscriminator(nn.Module):

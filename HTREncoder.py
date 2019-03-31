@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .Layers import *
+from Layers import *
 
 class HTREncoder(nn.Module):
     def __init__(self, batchnorm=False, dropout=False):
