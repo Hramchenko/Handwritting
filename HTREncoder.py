@@ -12,7 +12,7 @@ class HTREncoder(nn.Module):
         ConvLayer([4, 16, 3], padding=0, stride=2, bn=batchnorm, pool_layer=None),
         ConvLayer([16, 32, 3], padding=0, stride=2, bn=batchnorm, pool_layer=None),
         ConvLayer([32, 64, 3], padding=0, stride=2, bn=batchnorm, pool_layer=None),
-        ConvLayer([64, 64, 1], padding=0, stride=(1,11), bn=batchnorm, pool_layer=None))
+        ConvLayer([64, 64, 1], padding=0, stride=(11,1), bn=batchnorm, pool_layer=None))
         
         #self.fc = FullyConnectedX([64*15*49, 64*49*3, 64*49], activation_fn=nn.ReLU())
     
