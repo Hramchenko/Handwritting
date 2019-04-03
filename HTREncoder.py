@@ -18,7 +18,7 @@ class HTREncoder(nn.Module):
     
     def forward(self, x):
         h = self.convolutions(x)
-        h = h.squeeze(-1)
+        #h = h.squeeze(-1)
         #h = h.flatten(start_dim=1)
         #h = self.fc(h)
         #h = F.max_pool2d(h, [1, h.size(1)], padding=[0, 0])
