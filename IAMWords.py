@@ -84,11 +84,17 @@ class IAMWords:
         
         for idx in range(0, len(self.words_list)):
             w = self.words_list[idx][-1]
-            l = len(w)
-            if l == 1:
-#                if w not in '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz':
-                if w not in 'abcdefghijklmnopqrstuvwxyz':
-                    continue
+#            l = len(w)
+#             if l == 1:
+#                 if w not in '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz':
+#                     continue
+            flag = True
+            for s in w:
+                if s not in 'abcdefghijklmnopqrstuvwxyz':
+                    flag = False
+                break
+            if not flag:
+                continue
             while l >= len(self.grouped_words):
                 self.grouped_words.append([])
             self.grouped_words[l].append(idx)  
