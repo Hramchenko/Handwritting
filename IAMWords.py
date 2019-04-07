@@ -84,7 +84,7 @@ class IAMWords:
         
         for idx in range(0, len(self.words_list)):
             w = self.words_list[idx][-1]
-#            l = len(w)
+            l = len(w)
 #             if l == 1:
 #                 if w not in '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz':
 #                     continue
