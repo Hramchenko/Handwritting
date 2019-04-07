@@ -39,6 +39,8 @@ class HTRDecoder(nn.Module):
         if hidden is not None:
             hidden_m = hidden.permute(1, 0, 2)
             hidden_m = hidden_m.flatten(start_dim=1)
+            print(x.shape)
+            print(hidden_m.shape)
             attention_inp = torch.cat([x, hidden_m], dim=1).detach()
             self.attention_weights = self.attention(attention_inp)
             self.attention_weights = F.softmax(self.attention_weights, dim=1)
