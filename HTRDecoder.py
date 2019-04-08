@@ -37,6 +37,8 @@ class HTRDecoder(nn.Module):
     def forward(self, x, prev, hidden):
         #x = self.drop(x).squeeze()
         x = x.squeeze()
+        print(hidden)
+        print("aaaa")
         if hidden is not None:
             print("iiiiiiiiiiiii")
             hidden_m = hidden.permute(1, 0, 2)
