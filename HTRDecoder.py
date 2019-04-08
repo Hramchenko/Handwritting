@@ -34,10 +34,11 @@ class HTRDecoder(nn.Module):
         self.attention = FullyConnectedX([self.lstm_size*2 + self.encoded_height*encoded_width, self.encoded_height*encoded_width*2,  self.encoded_width], activation_fn=nn.LeakyReLU(0.2), last_fn=nn.Tanh())
         self.attention_weights = None
     
-    def forward(self, x, prev, hidden=None):
+    def forward(self, x, prev, hidden):
         #x = self.drop(x).squeeze()
         x = x.squeeze()
         if hidden is not None:
+            print("iiiiiiiiiiiii")
             hidden_m = hidden.permute(1, 0, 2)
             hidden_m = hidden_m.flatten(start_dim=1)
             print(x.shape)
