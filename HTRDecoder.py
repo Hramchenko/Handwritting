@@ -35,7 +35,8 @@ class HTRDecoder(nn.Module):
         self.attention_weights = None
     
     def forward(self, x, prev, hidden=None):
-        x = self.drop(x).squeeze()
+        #x = self.drop(x).squeeze()
+        x = x.squeeze()
         if hidden is not None:
             hidden_m = hidden.permute(1, 0, 2)
             hidden_m = hidden_m.flatten(start_dim=1)
