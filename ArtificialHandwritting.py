@@ -14,7 +14,8 @@ class ArtificialHandwrittingObject:
 
 class ArtificialHandwritting:
     
-    def __init__(self, datasetDir, scale, image_width, image_height, encode_word):
+    def __init__(self, batch_size, datasetDir, scale, image_width, image_height, encode_word):
+        self.batch_size = batch_size
         self.scale = scale
         self.height = image_height
         self.width = image_width
@@ -71,8 +72,8 @@ class ArtificialHandwritting:
         alphabet = "abcdefghijklmnopqrstuvwxyz"
         texts = []
         datas = []
-        #data = torch.FloatTensor(batch_size, self.image_height, self.image_width)
-        for batch_idx in range(0, batch_size):
+        #data = torch.FloatTensor(self.batch_size, self.image_height, self.image_width)
+        for batch_idx in range(0, self.batch_size):
           w = ""
           for i in range(0, word_len):
             s_idx = floor(random()*len(alphabet))
