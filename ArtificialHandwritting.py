@@ -6,7 +6,6 @@ from math import floor
 from random import random
 import scipy as sp
 
-
 class ArtificialHandwrittingObject:
     
     def __init__(self, name, img):
@@ -61,8 +60,6 @@ class ArtificialHandwritting:
             'z': 0,
         }
         
-        
-        
     def getValue(self, node, name):
         v  = node.getElementsByTagName(name) 
         if len(v) != 1:
@@ -91,7 +88,6 @@ class ArtificialHandwritting:
         t = torch.stack(texts)
         data = torch.stack(datas, dim=0)
         return data, t
-          
        
     def make_word(self, word, x_start):
         center = self.height*0.5
@@ -110,7 +106,6 @@ class ArtificialHandwritting:
         if (len(candidates) == 0):
           print("Bad word: " + word)
           raise Exception()
-        
         img_file = candidates[idx]
         page = self.data[img_file]
         x = x_start
@@ -127,7 +122,6 @@ class ArtificialHandwritting:
       
             
     def process_xml(self, f_path):
-        
         xml_file = minidom.parse(f_path)
         #xml_file.normalize()
         annotation = xml_file.getElementsByTagName('annotation')
