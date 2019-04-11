@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 from math import floor
 from random import random
 import scipy as sp
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
 class ArtificialHandwrittingObject:
     
